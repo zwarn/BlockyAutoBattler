@@ -14,17 +14,17 @@ namespace blocks
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            var selection = _hand.GetSelection();
-            if (selection == null)
-            {
-                return;
-            }
-            
+            var selectable = _hand.Selectable;
+
             Vector3 mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
             Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
-            
-            tilemap.SetTile(cellPosition, selection.tile);
 
+            selectable.Execute(this, cellPosition);
+        }
+
+        public void ChangeTile(Vector3Int position, TileTypeSO tileType)
+        {
+            tilemap.SetTile(position, tileType.tile);
         }
     }
 }

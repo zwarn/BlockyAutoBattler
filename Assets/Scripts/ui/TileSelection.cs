@@ -1,21 +1,23 @@
 ﻿using System;
 using blocks;
 using events;
+using hand.selectable;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using Zenject;
+using Selectable = hand.selectable.Selectable;
 
 namespace ui
 {
     public class TileSelection : MonoBehaviour, IPointerClickHandler
     {
-        [Inject] private Events _events;
-
         public TileTypeSO tileTypeSO;
         public Image image;
         public Image border;
+
+        private TileSelectable _tileSelection;
 
         private void OnValidate()
         {
@@ -27,12 +29,32 @@ namespace ui
 
         private void OnEnable()
         {
-            _events.OnSelectTileType += OnSelection;
+            SelectionEvents.OnSelected += OnSelection;
+            SelectionEvents.OnDeselected += OnDeselection;
+        }
+
+        private void Start()
+        {
+            _tileSelection = new TileSelectable(tileTypeSO);
+        }
+
+        private void OnSelection(Selectable selectable)
+        {
+            Select(selectable == _tileSelection);
+        }
+
+        private void OnDeselection(Selectable selectable)
+        {
+            if (selectable == _tileSelection)
+            {
+                Select(false);
+            }
         }
 
         private void OnDisable()
         {
-            _events.OnSelectTileType -= OnSelection;
+            SelectionEvents.OnSelected -= OnSelection;
+            SelectionEvents.OnDeselected -= OnDeselection;
         }
 
         private Sprite ExtractSprite(TileBase tileBase)
@@ -57,12 +79,12 @@ namespace ui
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            _events.SelectTileTypeEvent(tileTypeSO);
+            SelectionEvents.SelectEvent(_tileSelection);
         }
 
-        private void OnSelection(TileTypeSO tileType)
+        private void Select(bool showBorder)
         {
-            border.gameObject.SetActive(tileType == tileTypeSO);
+            border.gameObject.SetActive(showBorder);
         }
     }
 }

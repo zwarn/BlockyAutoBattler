@@ -4,13 +4,8 @@ using UnityEngine;
 
 namespace events
 {
-    public class Events
+    public static class Events
     {
-        public event Action<TileTypeSO> OnSelectTileType;
-
-        public void SelectTileTypeEvent(TileTypeSO tileType)
-        {
-            OnSelectTileType?.Invoke(tileType);
-        }
+        
     }
 }

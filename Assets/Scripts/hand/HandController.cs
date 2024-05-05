@@ -1,6 +1,7 @@
 ﻿using System;
 using blocks;
 using events;
+using hand.selectable;
 using UnityEngine;
 using Zenject;
 
@@ -8,28 +9,26 @@ namespace hand
 {
     public class HandController : MonoBehaviour
     {
-        [Inject] private Events _events;
-
-        private TileTypeSO _selectedTile;
+        public Selectable Selectable { get; private set;  } = Selectable.None();
 
         private void OnEnable()
         {
-            _events.OnSelectTileType += OnTileTypeSelection;
+            SelectionEvents.OnSelect += OnSelect;
         }
 
         private void OnDisable()
         {
-            _events.OnSelectTileType -= OnTileTypeSelection;
+            SelectionEvents.OnSelect -= OnSelect;
         }
 
-        private void OnTileTypeSelection(TileTypeSO tileType)
+        private void OnSelect(Selectable selectable)
         {
-            _selectedTile = tileType;
+            Selectable.OnDeselect();
+            SelectionEvents.DeselectedEvent(Selectable);
+            Selectable = selectable;
+            Selectable.OnSelect();
+            SelectionEvents.SelectedEvent(Selectable);
         }
 
-        public TileTypeSO GetSelection()
-        {
-            return _selectedTile;
-        }
     }
 }

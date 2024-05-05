@@ -9,7 +9,6 @@ namespace injection
     {
         public override void InstallBindings()
         {
-            Container.Bind<Events>().AsSingle();
             Container.Bind<HandController>().FromComponentInHierarchy().AsSingle();
             Container.Bind<Camera>().FromComponentInHierarchy().AsSingle();
         }
