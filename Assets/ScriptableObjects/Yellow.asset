@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17d804816c754cf49af94651e18155f4, type: 3}
   m_Name: Yellow
   m_EditorClassIdentifier: 
-  tile: {fileID: -4290133025060858943, guid: ab6599f5a5432cb4fb253fc7826b308e, type: 2}
+  tile: {fileID: -7885614041911676430, guid: 0c0e8e2bda227fd4d9031d70026c37f7, type: 2}
