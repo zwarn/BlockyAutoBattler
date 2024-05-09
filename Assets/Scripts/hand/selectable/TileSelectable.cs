@@ -14,17 +14,15 @@ namespace hand.selectable
 
         public override void OnSelect()
         {
-            
         }
 
         public override void OnDeselect()
         {
-            
         }
 
         public override void Execute(TileZone tileZone, Vector3Int position)
         {
-            tileZone.ChangeTile(position, TileType);
+            tileZone.PlaceTile(TileType, (Vector2Int)position);
         }
     }
 }

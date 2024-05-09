@@ -1,30 +1,42 @@
-﻿using hand;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
-using Zenject;
 
 namespace blocks
 {
-    public class TileZone : MonoBehaviour, IPointerClickHandler
+    public class TileZone
     {
-        [Inject] private HandController _hand;
-        [Inject] private Camera _camera;
-        public Tilemap tilemap;
+        private Dictionary<Vector2Int, TileTypeSO> _tiles = new Dictionary<Vector2Int, TileTypeSO>();
 
-        public void OnPointerClick(PointerEventData eventData)
+        public event Action<TileTypeSO, Vector2Int> OnSingleTileChanged;
+        public event Action OnTilesChanged;
+
+        public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles()
         {
-            var selectable = _hand.Selectable;
-
-            Vector3 mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
-            Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
-
-            selectable.Execute(this, cellPosition);
+            var result = _tiles.Select(pair => (pair.Value, pair.Key));
+            return result;
         }
 
-        public void ChangeTile(Vector3Int position, TileTypeSO tileType)
+        public bool CanPlaceTile(TileTypeSO tileType, Vector2Int position)
         {
-            tilemap.SetTile(position, tileType.tile);
+            return !_tiles.ContainsKey(position);
         }
+
+        public bool PlaceTile(TileTypeSO tileType, Vector2Int position)
+        {
+            if (!CanPlaceTile(tileType, position))
+            {
+                return false;
+            }
+
+            _tiles[position] = tileType;
+            
+            OnSingleTileChanged?.Invoke(tileType, position);
+
+            return true;
+        }
+        
+        
     }
 }
