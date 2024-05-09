@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using util;
 
 namespace blocks
 {
     public class TileZone
     {
+        private readonly BoundsInt2D _bounds;
         private Dictionary<Vector2Int, TileTypeSO> _tiles = new Dictionary<Vector2Int, TileTypeSO>();
+
+        public TileZone(BoundsInt2D bounds)
+        {
+            _bounds = bounds;
+        }
 
         public event Action<TileTypeSO, Vector2Int> OnSingleTileChanged;
         public event Action OnTilesChanged;
@@ -20,7 +27,7 @@ namespace blocks
 
         public bool CanPlaceTile(TileTypeSO tileType, Vector2Int position)
         {
-            return !_tiles.ContainsKey(position);
+            return _bounds.Contains(position) && !_tiles.ContainsKey(position);
         }
 
         public bool PlaceTile(TileTypeSO tileType, Vector2Int position)
