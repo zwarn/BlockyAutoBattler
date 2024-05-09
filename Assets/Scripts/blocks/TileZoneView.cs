@@ -1,5 +1,6 @@
 ﻿using System;
 using hand;
+using hand.selectable;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -9,7 +10,7 @@ using Zenject;
 namespace blocks
 {
     [RequireComponent(typeof(BoxCollider2D))]
-    public class TileZoneView : MonoBehaviour, IPointerClickHandler
+    public class TileZoneView : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler, IPointerExitHandler
     {
         [Inject] private HandController _hand;
         [Inject] private Camera _camera;
@@ -18,6 +19,9 @@ namespace blocks
         private BoxCollider2D _collider2D;
 
         public Tilemap tilemap;
+        public Tilemap previewTilemap;
+
+        public Vector2Int? CurrentMouseCellPosition = null;
 
         private void Awake()
         {
@@ -57,16 +61,57 @@ namespace blocks
         {
             var selectable = _hand.Selectable;
 
-            Vector3 mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
-            Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
+            var cellPosition = GetCellPosition(eventData);
 
             selectable.Execute(_tileZone, cellPosition);
+        }
+
+        private Vector3Int GetCellPosition(PointerEventData eventData)
+        {
+            Vector3 mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
+            Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
+            return cellPosition;
         }
 
         private Vector3Int ToVec3Int(Vector2Int vec2)
         {
             Vector3Int position = new Vector3Int(vec2.x, vec2.y, 0);
             return position;
+        }
+
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            var cellPosition = (Vector2Int)GetCellPosition(eventData);
+
+            if (CurrentMouseCellPosition != cellPosition)
+            {
+                CurrentMouseCellPosition = cellPosition;
+                UpdatePreview();
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            CurrentMouseCellPosition = null;
+            UpdatePreview();
+        }
+
+        private void UpdatePreview()
+        {
+            previewTilemap.gameObject.SetActive(false);
+            var selected = _hand.Selectable;
+            if (CurrentMouseCellPosition != null && selected != Selectable.None())
+            {
+                previewTilemap.gameObject.SetActive(true);
+                previewTilemap.ClearAllTiles();
+
+                var offset = CurrentMouseCellPosition.Value;
+
+                foreach (var pair in selected.GetTiles())
+                {
+                    previewTilemap.SetTile(ToVec3Int(pair.Position + offset), pair.Tile.tile);
+                }
+            }
         }
     }
 }

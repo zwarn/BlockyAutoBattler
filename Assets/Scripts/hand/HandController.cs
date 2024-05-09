@@ -9,7 +9,7 @@ namespace hand
 {
     public class HandController : MonoBehaviour
     {
-        public Selectable Selectable { get; private set;  } = Selectable.None();
+        public Selectable Selectable { get; private set; } = Selectable.None();
 
         private void OnEnable()
         {
@@ -23,12 +23,13 @@ namespace hand
 
         private void OnSelect(Selectable selectable)
         {
-            Selectable.OnDeselect();
             SelectionEvents.DeselectedEvent(Selectable);
             Selectable = selectable;
-            Selectable.OnSelect();
             SelectionEvents.SelectedEvent(Selectable);
         }
+    }
 
+    public class Zone
+    {
     }
 }
