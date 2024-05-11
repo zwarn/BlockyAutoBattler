@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using Zenject;
 using Selectable = hand.selectable.Selectable;
 
 namespace ui

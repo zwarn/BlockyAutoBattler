@@ -38,12 +38,30 @@ namespace blocks
             }
 
             _tiles[position] = tileType;
-            
+
             OnSingleTileChanged?.Invoke(tileType, position);
 
             return true;
         }
-        
-        
+
+        public bool CanPlaceShape(IEnumerable<(TileTypeSO tileType, Vector2Int position)> shape)
+        {
+            return shape.All(tile => CanPlaceTile(tile.tileType, tile.position));
+        }
+
+        public bool PlaceShape(IEnumerable<(TileTypeSO tileType, Vector2Int position)> shape)
+        {
+            var tiles = shape.ToList();
+
+            if (!CanPlaceShape(tiles))
+            {
+                return false;
+            }
+
+            tiles.ForEach(tile => { _tiles.Add(tile.position, tile.tileType); });
+
+            OnTilesChanged?.Invoke();
+            return true;
+        }
     }
 }
