@@ -28,8 +28,4 @@ namespace hand
             SelectionEvents.SelectedEvent(Selectable);
         }
     }
-
-    public class Zone
-    {
-    }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using blocks;
+using events;
 using UnityEngine;
 
 namespace hand.selectable
@@ -17,6 +18,7 @@ namespace hand.selectable
         public override void Execute(TileZone tileZone, Vector3Int position)
         {
             tileZone.PlaceShape(GetTiles().Select(tile => (tile.Tile, tile.Position + (Vector2Int)position)));
+            SelectionEvents.SelectEvent(None());
         }
 
         public override IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles()
