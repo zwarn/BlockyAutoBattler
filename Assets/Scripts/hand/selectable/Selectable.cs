@@ -8,7 +8,7 @@ namespace hand.selectable
     {
         private static readonly Selectable Nothing = new NothingSelected();
 
-        public abstract void Interact(TileZone tileZone, Vector3Int position);
+        public abstract void Interact(TileZone tileZone, Vector2Int position);
 
         public static Selectable None()
         {
@@ -18,7 +18,7 @@ namespace hand.selectable
 
     class NothingSelected : Selectable
     {
-        public override void Interact(TileZone tileZone, Vector3Int position)
+        public override void Interact(TileZone tileZone, Vector2Int position)
         {
         }
 

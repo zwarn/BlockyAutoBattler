@@ -26,5 +26,12 @@ namespace events
         {
             OnDeselected?.Invoke(selectable);
         }
+
+        public static event Action<Selectable> OnRotated;
+
+        public static void RotationEvent(Selectable selectable)
+        {
+            OnRotated?.Invoke(selectable);
+        }
     }
 }

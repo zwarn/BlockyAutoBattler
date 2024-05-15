@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using util;
 
 namespace blocks
 {
@@ -22,6 +23,11 @@ namespace blocks
         public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTilesTranslated(Vector2Int offset)
         {
             return _tiles.Select(tile => (tile.Value, tile.Key + offset));
+        }
+        
+        public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTilesTranslatedAndRotated(Vector2Int offset, int rotation)
+        {
+            return _tiles.Select(tile => (tile.Value, tile.Key.Rotate(rotation) + offset));
         }
     }
 }

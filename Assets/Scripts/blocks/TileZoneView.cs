@@ -1,4 +1,5 @@
 ﻿using System;
+using events;
 using hand;
 using hand.selectable;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace blocks
 
         private TileZone _tileZone;
         private BoxCollider2D _collider2D;
+        private Action<Selectable> UpdatePreviewAction;
 
         public Tilemap tilemap;
         public Tilemap previewTilemap;
@@ -29,7 +31,20 @@ namespace blocks
             _tileZone = CreateTileZone();
             _tileZone.OnTilesChanged += OnTilesChanged;
             _tileZone.OnSingleTileChanged += OnSingleTileChanged;
+            UpdatePreviewAction = _ => UpdatePreview();
+            SelectionEvents.OnSelected += UpdatePreviewAction;
+            SelectionEvents.OnDeselected += UpdatePreviewAction;
+            SelectionEvents.OnRotated += UpdatePreviewAction;
             OnTilesChanged();
+        }
+
+        private void OnDestroy()
+        {
+            _tileZone.OnTilesChanged -= OnTilesChanged;
+            _tileZone.OnSingleTileChanged -= OnSingleTileChanged;
+            SelectionEvents.OnSelected -= UpdatePreviewAction;
+            SelectionEvents.OnDeselected -= UpdatePreviewAction;
+            SelectionEvents.OnRotated -= UpdatePreviewAction;
         }
 
         private TileZone CreateTileZone()
@@ -63,7 +78,7 @@ namespace blocks
 
             var cellPosition = GetCellPosition(eventData);
 
-            selectable.Interact(_tileZone, cellPosition);
+            selectable.Interact(_tileZone, (Vector2Int)cellPosition);
         }
 
         private Vector3Int GetCellPosition(PointerEventData eventData)
@@ -109,7 +124,7 @@ namespace blocks
 
                 if (selected is ShapeSelectable shapeSelection)
                 {
-                    foreach (var pair in shapeSelection.GetShape().GetTilesTranslated(offset))
+                    foreach (var pair in shapeSelection.GetTilesTranslatedAndRotated(offset))
                     {
                         previewTilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
                     }

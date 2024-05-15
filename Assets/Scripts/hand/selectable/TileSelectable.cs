@@ -14,9 +14,9 @@ namespace hand.selectable
             TileType = tileType;
         }
 
-        public override void Interact(TileZone tileZone, Vector3Int position)
+        public override void Interact(TileZone tileZone, Vector2Int position)
         {
-            tileZone.PlaceTile(TileType, (Vector2Int)position);
+            tileZone.PlaceTile(TileType, position);
         }
     }
 }

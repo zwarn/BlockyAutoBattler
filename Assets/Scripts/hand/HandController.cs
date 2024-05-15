@@ -3,6 +3,7 @@ using blocks;
 using events;
 using hand.selectable;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Zenject;
 
 namespace hand
@@ -26,6 +27,28 @@ namespace hand
             SelectionEvents.DeselectedEvent(Selectable);
             Selectable = selectable;
             SelectionEvents.SelectedEvent(Selectable);
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.Q))
+            {
+                Rotate(true);
+            }
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                Rotate(false);
+            }
+        }
+
+        private void Rotate(bool clockwise)
+        {
+            if (Selectable is ShapeSelectable shapeSelectable)
+            {
+                shapeSelectable.Rotate(clockwise);
+                SelectionEvents.RotationEvent(Selectable);
+            }
         }
     }
 }
