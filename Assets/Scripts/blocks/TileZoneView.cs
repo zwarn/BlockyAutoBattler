@@ -63,7 +63,7 @@ namespace blocks
 
             var cellPosition = GetCellPosition(eventData);
 
-            selectable.Execute(_tileZone, cellPosition);
+            selectable.Interact(_tileZone, cellPosition);
         }
 
         private Vector3Int GetCellPosition(PointerEventData eventData)
@@ -107,9 +107,12 @@ namespace blocks
 
                 var offset = CurrentMouseCellPosition.Value;
 
-                foreach (var pair in selected.GetTiles())
+                if (selected is ShapeSelectable shapeSelection)
                 {
-                    previewTilemap.SetTile(ToVec3Int(pair.Position + offset), pair.Tile.tile);
+                    foreach (var pair in shapeSelection.GetShape().GetTilesTranslated(offset))
+                    {
+                        previewTilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
+                    }
                 }
             }
         }

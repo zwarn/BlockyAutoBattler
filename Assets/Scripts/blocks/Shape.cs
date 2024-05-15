@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -16,6 +17,11 @@ namespace blocks
         public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles()
         {
             return _tiles.Select(tile => (tile.Value, tile.Key));
+        }
+
+        public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTilesTranslated(Vector2Int offset)
+        {
+            return _tiles.Select(tile => (tile.Value, tile.Key + offset));
         }
     }
 }

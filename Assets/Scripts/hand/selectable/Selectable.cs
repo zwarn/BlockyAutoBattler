@@ -8,8 +8,7 @@ namespace hand.selectable
     {
         private static readonly Selectable Nothing = new NothingSelected();
 
-        public abstract void Execute(TileZone tileZone, Vector3Int position);
-        public abstract IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles();
+        public abstract void Interact(TileZone tileZone, Vector3Int position);
 
         public static Selectable None()
         {
@@ -19,13 +18,9 @@ namespace hand.selectable
 
     class NothingSelected : Selectable
     {
-        public override void Execute(TileZone tileZone, Vector3Int position)
+        public override void Interact(TileZone tileZone, Vector3Int position)
         {
         }
 
-        public override IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles()
-        {
-            return new List<(TileTypeSO Tile, Vector2Int Position)>();
-        }
     }
 }

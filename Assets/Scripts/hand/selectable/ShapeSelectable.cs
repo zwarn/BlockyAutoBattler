@@ -8,22 +8,25 @@ namespace hand.selectable
 {
     public class ShapeSelectable : Selectable
     {
-        private readonly Shape _shape;
+        protected readonly Shape Shape;
 
         public ShapeSelectable(Shape shape)
         {
-            _shape = shape;
+            Shape = shape;
         }
 
-        public override void Execute(TileZone tileZone, Vector3Int position)
+        public override void Interact(TileZone tileZone, Vector3Int position)
         {
-            tileZone.PlaceShape(GetTiles().Select(tile => (tile.Tile, tile.Position + (Vector2Int)position)));
-            SelectionEvents.SelectEvent(None());
+            bool placed = tileZone.PlaceShape(Shape.GetTilesTranslated((Vector2Int)position));
+            if (placed)
+            {
+                SelectionEvents.SelectEvent(None());
+            }
         }
 
-        public override IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTiles()
+        public Shape GetShape()
         {
-            return _shape.GetTiles();
+            return Shape;
         }
     }
 }
