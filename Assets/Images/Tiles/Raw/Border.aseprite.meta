@@ -142,7 +142,7 @@ ScriptedImporter:
   spriteSheetImportData:
   - name: Border_0
     originalName: 
-    pivot: {x: 0, y: 0}
+    pivot: {x: 0.5, y: 0.5}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
@@ -1212,6 +1212,26 @@ ScriptedImporter:
       width: 32
       height: 32
     spriteID: 4f09c5dda163b5a49b737a8458f73b1b
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Border_54
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 4
+      width: 32
+      height: 32
+    spriteID: 03d601d6594acb74fbdee9b273ebd077
     spriteBone: []
     spriteOutline: []
     vertices: []
