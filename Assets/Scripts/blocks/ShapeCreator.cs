@@ -7,29 +7,25 @@ namespace blocks
 {
     public class ShapeCreator
     {
-        [Inject] private List<TileTypeSO> _tileTypes;
-
         private const int ShapeSize = 4;
+        [Inject] private List<TileTypeSO> _tileTypes;
 
         public Shape CreateShape()
         {
             var positions = new List<Vector2Int>();
             positions.Add(Vector2Int.zero);
 
-            while (positions.Count < ShapeSize)
-            {
-                AddNeighbor(positions);
-            }
+            while (positions.Count < ShapeSize) AddNeighbor(positions);
 
             var tiles = new Dictionary<Vector2Int, TileTypeSO>();
             positions.ForEach(pos => tiles.Add(pos, RandomType()));
-            Shape shape = new Shape(tiles);
+            var shape = new Shape(tiles);
             return shape;
         }
 
         private void AddNeighbor(List<Vector2Int> positions)
         {
-            HashSet<Vector2Int> candidates = new HashSet<Vector2Int>();
+            var candidates = new HashSet<Vector2Int>();
 
             positions.ForEach(pos =>
             {

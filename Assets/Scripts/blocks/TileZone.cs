@@ -10,7 +10,7 @@ namespace blocks
     public class TileZone
     {
         private readonly BoundsInt2D _bounds;
-        private Dictionary<Vector2Int, TileTypeSO> _tiles = new Dictionary<Vector2Int, TileTypeSO>();
+        private readonly Dictionary<Vector2Int, TileTypeSO> _tiles = new();
 
         public TileZone(BoundsInt2D bounds)
         {
@@ -33,10 +33,7 @@ namespace blocks
 
         public bool PlaceTile(TileTypeSO tileType, Vector2Int position)
         {
-            if (!CanPlaceTile(tileType, position))
-            {
-                return false;
-            }
+            if (!CanPlaceTile(tileType, position)) return false;
 
             _tiles[position] = tileType;
 
@@ -54,10 +51,7 @@ namespace blocks
         {
             var tiles = shape.ToList();
 
-            if (!CanPlaceShape(tiles))
-            {
-                return false;
-            }
+            if (!CanPlaceShape(tiles)) return false;
 
             tiles.ForEach(tile => { _tiles.Add(tile.position, tile.tileType); });
 

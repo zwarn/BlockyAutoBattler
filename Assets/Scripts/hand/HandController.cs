@@ -2,13 +2,19 @@
 using hand.selectable;
 using JetBrains.Annotations;
 using UnityEngine;
-using util;
 
 namespace hand
 {
     public class HandController : MonoBehaviour
     {
-        [CanBeNull] public SelectionContainer Selection { get; private set; } = null;
+        [CanBeNull] public SelectionContainer Selection { get; private set; }
+
+        private void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.Q)) Rotate(true);
+
+            if (Input.GetKeyUp(KeyCode.E)) Rotate(false);
+        }
 
         private void OnEnable()
         {
@@ -25,19 +31,6 @@ namespace hand
             SelectionEvents.DeselectedEvent(Selection);
             Selection = selectable;
             SelectionEvents.SelectedEvent(Selection);
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyUp(KeyCode.Q))
-            {
-                Rotate(true);
-            }
-
-            if (Input.GetKeyUp(KeyCode.E))
-            {
-                Rotate(false);
-            }
         }
 
         private void Rotate(bool clockwise)

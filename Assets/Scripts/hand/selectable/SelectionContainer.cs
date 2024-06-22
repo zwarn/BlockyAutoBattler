@@ -1,22 +1,21 @@
-﻿using events;
-using util;
+﻿using util;
 
 namespace hand.selectable
 {
     public class SelectionContainer
     {
-        public readonly ISelectable Value;
+        public readonly ISelection Value;
 
-        public int Rotation { get; private set; } = 0;
-
-        public SelectionContainer(ISelectable value)
+        public SelectionContainer(ISelection value)
         {
             Value = value;
         }
 
+        public int Rotation { get; private set; }
+
         public void Rotate(bool clockwise)
         {
-            int delta = clockwise ? 1 : -1;
+            var delta = clockwise ? 1 : -1;
             Rotation = (Rotation + delta).Mod(4);
         }
     }

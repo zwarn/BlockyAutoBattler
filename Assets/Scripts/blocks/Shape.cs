@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using hand;
+using hand.selectable;
 using UnityEngine;
 using util;
 
 namespace blocks
 {
-    public class Shape : ISelectable
+    public class Shape : ISelection
     {
         private readonly Dictionary<Vector2Int, TileTypeSO> _tiles;
 
@@ -25,8 +24,9 @@ namespace blocks
         {
             return _tiles.Select(tile => (tile.Value, tile.Key + offset));
         }
-        
-        public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTilesTranslatedAndRotated(Vector2Int offset, int rotation)
+
+        public IEnumerable<(TileTypeSO Tile, Vector2Int Position)> GetTilesTranslatedAndRotated(Vector2Int offset,
+            int rotation)
         {
             return _tiles.Select(tile => (tile.Value, tile.Key.Rotate(rotation) + offset));
         }

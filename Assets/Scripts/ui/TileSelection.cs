@@ -1,12 +1,10 @@
-﻿using System;
-using blocks;
+﻿using blocks;
 using events;
 using hand.selectable;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using Selectable = hand.selectable.Selectable;
 
 namespace ui
 {
@@ -18,12 +16,9 @@ namespace ui
 
         private SelectionContainer _tileSelection;
 
-        private void OnValidate()
+        private void Start()
         {
-            if (tileTypeSO != null)
-            {
-                image.sprite = ExtractSprite(tileTypeSO.tile);
-            }
+            _tileSelection = new SelectionContainer(tileTypeSO);
         }
 
         private void OnEnable()
@@ -32,9 +27,20 @@ namespace ui
             SelectionEvents.OnDeselected += OnDeselection;
         }
 
-        private void Start()
+        private void OnDisable()
         {
-            _tileSelection = new SelectionContainer(tileTypeSO);
+            SelectionEvents.OnSelected -= OnSelection;
+            SelectionEvents.OnDeselected -= OnDeselection;
+        }
+
+        private void OnValidate()
+        {
+            if (tileTypeSO != null) image.sprite = ExtractSprite(tileTypeSO.tile);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            SelectionEvents.SelectEvent(_tileSelection);
         }
 
         private void OnSelection(SelectionContainer selection)
@@ -44,41 +50,18 @@ namespace ui
 
         private void OnDeselection(SelectionContainer selection)
         {
-            if (selection == _tileSelection)
-            {
-                Select(false);
-            }
-        }
-
-        private void OnDisable()
-        {
-            SelectionEvents.OnSelected -= OnSelection;
-            SelectionEvents.OnDeselected -= OnDeselection;
+            if (selection == _tileSelection) Select(false);
         }
 
         private Sprite ExtractSprite(TileBase tileBase)
         {
-            if (tileBase is Tile tile)
-            {
-                return tile.sprite;
-            }
+            if (tileBase is Tile tile) return tile.sprite;
 
-            if (tileBase is RuleTile ruleTile)
-            {
-                return ruleTile.m_DefaultSprite;
-            }
+            if (tileBase is RuleTile ruleTile) return ruleTile.m_DefaultSprite;
 
-            if (tileBase is AnimatedTile animatedTile)
-            {
-                return animatedTile.m_AnimatedSprites[0];
-            }
+            if (tileBase is AnimatedTile animatedTile) return animatedTile.m_AnimatedSprites[0];
 
             return null;
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            SelectionEvents.SelectEvent(_tileSelection);
         }
 
         private void Select(bool showBorder)

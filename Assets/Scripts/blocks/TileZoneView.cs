@@ -14,17 +14,16 @@ namespace blocks
     [RequireComponent(typeof(BoxCollider2D))]
     public class TileZoneView : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler, IPointerExitHandler
     {
-        [Inject] private HandController _hand;
-        [Inject] private Camera _camera;
-
-        private TileZone _tileZone;
-        private BoxCollider2D _collider2D;
-        private Action<SelectionContainer> UpdatePreviewAction;
-
         public Tilemap tilemap;
         public Tilemap previewTilemap;
+        [Inject] private Camera _camera;
+        private BoxCollider2D _collider2D;
+        [Inject] private HandController _hand;
 
-        public Vector2Int? CurrentMouseCellPosition = null;
+        private TileZone _tileZone;
+
+        public Vector2Int? CurrentMouseCellPosition;
+        private Action<SelectionContainer> UpdatePreviewAction;
 
         private void Awake()
         {
@@ -48,31 +47,6 @@ namespace blocks
             SelectionEvents.OnRotated -= UpdatePreviewAction;
         }
 
-        private TileZone CreateTileZone()
-        {
-            Bounds colliderBounds = _collider2D.bounds;
-
-            var minCell = tilemap.WorldToCell(colliderBounds.min);
-            var maxCell = tilemap.WorldToCell(colliderBounds.max);
-
-            BoundsInt2D bounds = new BoundsInt2D(minCell, maxCell);
-            return new TileZone(bounds);
-        }
-
-        private void OnSingleTileChanged(TileTypeSO tileType, Vector2Int position)
-        {
-            tilemap.SetTile(ToVec3Int(position), tileType.tile);
-        }
-
-        private void OnTilesChanged()
-        {
-            tilemap.ClearAllTiles();
-            foreach (var pair in _tileZone.GetTiles())
-            {
-                tilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
-            }
-        }
-
         public void OnPointerClick(PointerEventData eventData)
         {
             var selection = _hand.Selection;
@@ -82,17 +56,10 @@ namespace blocks
             _tileZone.Place(selection, (Vector2Int)cellPosition);
         }
 
-        private Vector3Int GetCellPosition(PointerEventData eventData)
+        public void OnPointerExit(PointerEventData eventData)
         {
-            Vector3 mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
-            Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
-            return cellPosition;
-        }
-
-        private Vector3Int ToVec3Int(Vector2Int vec2)
-        {
-            Vector3Int position = new Vector3Int(vec2.x, vec2.y, 0);
-            return position;
+            CurrentMouseCellPosition = null;
+            UpdatePreview();
         }
 
         public void OnPointerMove(PointerEventData eventData)
@@ -106,10 +73,39 @@ namespace blocks
             }
         }
 
-        public void OnPointerExit(PointerEventData eventData)
+        private TileZone CreateTileZone()
         {
-            CurrentMouseCellPosition = null;
-            UpdatePreview();
+            var colliderBounds = _collider2D.bounds;
+
+            var minCell = tilemap.WorldToCell(colliderBounds.min);
+            var maxCell = tilemap.WorldToCell(colliderBounds.max);
+
+            var bounds = new BoundsInt2D(minCell, maxCell);
+            return new TileZone(bounds);
+        }
+
+        private void OnSingleTileChanged(TileTypeSO tileType, Vector2Int position)
+        {
+            tilemap.SetTile(ToVec3Int(position), tileType.tile);
+        }
+
+        private void OnTilesChanged()
+        {
+            tilemap.ClearAllTiles();
+            foreach (var pair in _tileZone.GetTiles()) tilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
+        }
+
+        private Vector3Int GetCellPosition(PointerEventData eventData)
+        {
+            var mouseWorldPos = _camera.ScreenToWorldPoint(eventData.position);
+            var cellPosition = tilemap.WorldToCell(mouseWorldPos);
+            return cellPosition;
+        }
+
+        private Vector3Int ToVec3Int(Vector2Int vec2)
+        {
+            var position = new Vector3Int(vec2.x, vec2.y, 0);
+            return position;
         }
 
         private void UpdatePreview()
@@ -140,10 +136,7 @@ namespace blocks
 
         private void PreviewShape(IEnumerable<(TileTypeSO Tile, Vector2Int Position)> tiles)
         {
-            foreach (var pair in tiles)
-            {
-                previewTilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
-            }
+            foreach (var pair in tiles) previewTilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
         }
 
         private void PreviewTile(TileTypeSO tile, Vector2Int offset)
