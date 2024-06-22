@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using hand;
 using UnityEngine;
 using util;
 
 namespace blocks
 {
-    public class Shape
+    public class Shape : ISelectable
     {
         private readonly Dictionary<Vector2Int, TileTypeSO> _tiles;
 

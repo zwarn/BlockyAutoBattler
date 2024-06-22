@@ -1,16 +1,14 @@
-﻿using System;
-using blocks;
-using events;
+﻿using events;
 using hand.selectable;
+using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Zenject;
+using util;
 
 namespace hand
 {
     public class HandController : MonoBehaviour
     {
-        public Selectable Selectable { get; private set; } = Selectable.None();
+        [CanBeNull] public SelectionContainer Selection { get; private set; } = null;
 
         private void OnEnable()
         {
@@ -22,11 +20,11 @@ namespace hand
             SelectionEvents.OnSelect -= OnSelect;
         }
 
-        private void OnSelect(Selectable selectable)
+        private void OnSelect(SelectionContainer selectable)
         {
-            SelectionEvents.DeselectedEvent(Selectable);
-            Selectable = selectable;
-            SelectionEvents.SelectedEvent(Selectable);
+            SelectionEvents.DeselectedEvent(Selection);
+            Selection = selectable;
+            SelectionEvents.SelectedEvent(Selection);
         }
 
         private void Update()
@@ -44,10 +42,10 @@ namespace hand
 
         private void Rotate(bool clockwise)
         {
-            if (Selectable is ShapeSelectable shapeSelectable)
+            if (Selection != null)
             {
-                shapeSelectable.Rotate(clockwise);
-                SelectionEvents.RotationEvent(Selectable);
+                Selection.Rotate(clockwise);
+                SelectionEvents.RotationEvent(Selection);
             }
         }
     }

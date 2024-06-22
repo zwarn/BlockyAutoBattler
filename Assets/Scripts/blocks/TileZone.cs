@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using hand.selectable;
 using UnityEngine;
 using util;
 
@@ -62,6 +63,22 @@ namespace blocks
 
             OnTilesChanged?.Invoke();
             return true;
+        }
+
+        public void Place(SelectionContainer selection, Vector2Int cellPosition)
+        {
+            var value = selection.Value;
+            switch (value)
+            {
+                case TileTypeSO tile:
+                    PlaceTile(tile, cellPosition);
+                    break;
+                case Shape shape:
+                    PlaceShape(shape.GetTilesTranslatedAndRotated(cellPosition, selection.Rotation));
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown type {value.GetType()} for placing selection");
+            }
         }
     }
 }

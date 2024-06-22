@@ -18,7 +18,7 @@ namespace ui
 
         [Inject] private ShapeCreator _shapeCreator;
 
-        private ShapeSelectable _shapeSelectable = null;
+        private SelectionContainer _shapeSelection = null;
 
         private void OnEnable()
         {
@@ -26,14 +26,14 @@ namespace ui
             SelectionEvents.OnDeselected += OnDeselection;
         }
 
-        private void OnSelection(Selectable selectable)
+        private void OnSelection(SelectionContainer selection)
         {
-            Select(selectable == _shapeSelectable);
+            Select(selection == _shapeSelection);
         }
 
-        private void OnDeselection(Selectable selectable)
+        private void OnDeselection(SelectionContainer selection)
         {
-            if (selectable == _shapeSelectable)
+            if (selection == _shapeSelection)
             {
                 Select(false);
             }
@@ -47,9 +47,9 @@ namespace ui
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            _shapeSelectable = new ShapeSelectable(CreateNewShape());
+            _shapeSelection = new SelectionContainer(CreateNewShape());
 
-            SelectionEvents.SelectEvent(_shapeSelectable);
+            SelectionEvents.SelectEvent(_shapeSelection);
         }
 
         private Shape CreateNewShape()

@@ -6,32 +6,32 @@ namespace events
 {
     public static class SelectionEvents
     {
-        public static event Action<Selectable> OnSelect;
+        public static event Action<SelectionContainer> OnSelect;
 
-        public static void SelectEvent(Selectable selectable)
+        public static void SelectEvent(SelectionContainer selection)
         {
-            OnSelect?.Invoke(selectable);
+            OnSelect?.Invoke(selection);
         }
 
-        public static event Action<Selectable> OnSelected;
+        public static event Action<SelectionContainer> OnSelected;
 
-        public static void SelectedEvent(Selectable selectable)
+        public static void SelectedEvent(SelectionContainer selection)
         {
-            OnSelected?.Invoke(selectable);
+            OnSelected?.Invoke(selection);
         }
 
-        public static event Action<Selectable> OnDeselected;
+        public static event Action<SelectionContainer> OnDeselected;
 
-        public static void DeselectedEvent(Selectable selectable)
+        public static void DeselectedEvent(SelectionContainer selection)
         {
-            OnDeselected?.Invoke(selectable);
+            OnDeselected?.Invoke(selection);
         }
 
-        public static event Action<Selectable> OnRotated;
+        public static event Action<SelectionContainer> OnRotated;
 
-        public static void RotationEvent(Selectable selectable)
+        public static void RotationEvent(SelectionContainer selection)
         {
-            OnRotated?.Invoke(selectable);
+            OnRotated?.Invoke(selection);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ui
         public Image image;
         public Image border;
 
-        private TileSelectable _tileSelection;
+        private SelectionContainer _tileSelection;
 
         private void OnValidate()
         {
@@ -34,17 +34,17 @@ namespace ui
 
         private void Start()
         {
-            _tileSelection = new TileSelectable(tileTypeSO);
+            _tileSelection = new SelectionContainer(tileTypeSO);
         }
 
-        private void OnSelection(Selectable selectable)
+        private void OnSelection(SelectionContainer selection)
         {
-            Select(selectable == _tileSelection);
+            Select(selection == _tileSelection);
         }
 
-        private void OnDeselection(Selectable selectable)
+        private void OnDeselection(SelectionContainer selection)
         {
-            if (selectable == _tileSelection)
+            if (selection == _tileSelection)
             {
                 Select(false);
             }
