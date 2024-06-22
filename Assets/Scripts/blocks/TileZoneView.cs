@@ -51,9 +51,35 @@ namespace blocks
         {
             var selection = _hand.Selection;
 
-            var cellPosition = GetCellPosition(eventData);
+            var cellPosition = (Vector2Int) GetCellPosition(eventData);
 
-            _tileZone.Place(selection, (Vector2Int)cellPosition);
+            if (selection != null)
+            {
+                HandlePlacement(selection, cellPosition);
+            }
+            else
+            {
+                HandlePickup(cellPosition);
+            }
+
+        }
+
+        private void HandlePickup(Vector2Int cellPosition)
+        {
+            var shape = _tileZone.GetShape(cellPosition);
+            if (shape != null)
+            {
+                _tileZone.RemoveShape(cellPosition);
+                SelectionEvents.SelectEvent(new SelectionContainer(shape));
+            }
+        }
+
+        private void HandlePlacement(SelectionContainer selection, Vector2Int cellPosition)
+        {
+            if (_tileZone.Place(selection, cellPosition))
+            {
+                SelectionEvents.SelectEvent(null);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)

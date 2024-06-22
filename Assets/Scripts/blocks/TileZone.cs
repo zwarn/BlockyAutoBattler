@@ -11,6 +11,7 @@ namespace blocks
     {
         private readonly BoundsInt2D _bounds;
         private readonly Dictionary<Vector2Int, TileTypeSO> _tiles = new();
+        private readonly Dictionary<Vector2Int, Shape> _shapes = new();
 
         public TileZone(BoundsInt2D bounds)
         {
@@ -36,40 +37,75 @@ namespace blocks
             if (!CanPlaceTile(tileType, position)) return false;
 
             _tiles[position] = tileType;
+            _shapes[position] = null;
 
             OnSingleTileChanged?.Invoke(tileType, position);
 
             return true;
         }
 
-        public bool CanPlaceShape(IEnumerable<(TileTypeSO tileType, Vector2Int position)> shape)
+        public bool CanPlaceShape(Shape shape, Vector2Int position, int rotation)
         {
-            return shape.All(tile => CanPlaceTile(tile.tileType, tile.position));
+            var list = shape.GetTilesTranslatedAndRotated(position, rotation).ToList();
+            return list.All(pair => CanPlaceTile(pair.Tile, pair.Position));
         }
 
-        public bool PlaceShape(IEnumerable<(TileTypeSO tileType, Vector2Int position)> shape)
+        public bool PlaceShape(Shape shape, Vector2Int position, int rotation)
         {
-            var tiles = shape.ToList();
+            var tiles = shape.GetTilesTranslatedAndRotated(position, rotation).ToList();
 
-            if (!CanPlaceShape(tiles)) return false;
+            if (!CanPlaceShape(shape, position, rotation)) return false;
 
-            tiles.ForEach(tile => { _tiles.Add(tile.position, tile.tileType); });
+            tiles.ForEach(pair =>
+            {
+                _tiles[pair.Position] = pair.Tile;
+                _shapes[pair.Position] = shape;
+            });
 
             OnTilesChanged?.Invoke();
             return true;
         }
 
-        public void Place(SelectionContainer selection, Vector2Int cellPosition)
+        public Shape GetShape(Vector2Int position)
+        {
+            if (_shapes.TryGetValue(position, out Shape shape))
+            {
+                var offset = position;
+                var positions = _shapes.Where(pair => pair.Value == shape).Select(pair => pair.Key).ToList();
+                var tiles = positions.ToDictionary(pos => pos - offset, pos => _tiles[pos]);
+
+                return new Shape(tiles);
+            }
+
+            return null;
+        }
+
+        public Shape RemoveShape(Vector2Int position)
+        {
+            var shape = GetShape(position);
+
+            if (shape == null) return null;
+            
+            shape.GetTilesTranslated(position).ToList().ForEach(pair =>
+            {
+                _tiles.Remove(pair.Position);
+                _shapes.Remove(pair.Position);
+            });
+                
+            OnTilesChanged?.Invoke();
+
+            return shape;
+        }
+
+        public bool Place(SelectionContainer selection, Vector2Int cellPosition)
         {
             var value = selection.Value;
             switch (value)
             {
                 case TileTypeSO tile:
-                    PlaceTile(tile, cellPosition);
-                    break;
+                    return PlaceTile(tile, cellPosition);
                 case Shape shape:
-                    PlaceShape(shape.GetTilesTranslatedAndRotated(cellPosition, selection.Rotation));
-                    break;
+                    return PlaceShape(shape, cellPosition, selection.Rotation);
                 default:
                     throw new ArgumentException($"Unknown type {value.GetType()} for placing selection");
             }
