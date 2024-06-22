@@ -15,7 +15,9 @@ namespace blocks
     public class TileZoneView : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler, IPointerExitHandler
     {
         public Tilemap tilemap;
+        public Tilemap selectionTilemap;
         public Tilemap previewTilemap;
+        public TileBase borderTile;
         [Inject] private Camera _camera;
         private BoxCollider2D _collider2D;
         [Inject] private HandController _hand;
@@ -24,6 +26,7 @@ namespace blocks
 
         public Vector2Int? CurrentMouseCellPosition;
         private Action<SelectionContainer> UpdatePreviewAction;
+        private Action<SelectionContainer> UpdateSelectionAction;
 
         private void Awake()
         {
@@ -31,10 +34,15 @@ namespace blocks
             _tileZone = CreateTileZone();
             _tileZone.OnTilesChanged += OnTilesChanged;
             _tileZone.OnSingleTileChanged += OnSingleTileChanged;
+
             UpdatePreviewAction = _ => UpdatePreview();
             SelectionEvents.OnSelected += UpdatePreviewAction;
             SelectionEvents.OnDeselected += UpdatePreviewAction;
             SelectionEvents.OnRotated += UpdatePreviewAction;
+
+            UpdateSelectionAction = _ => UpdateSelection();
+            SelectionEvents.OnSelected += UpdateSelectionAction;
+            SelectionEvents.OnDeselected += UpdateSelectionAction;
             OnTilesChanged();
         }
 
@@ -45,13 +53,16 @@ namespace blocks
             SelectionEvents.OnSelected -= UpdatePreviewAction;
             SelectionEvents.OnDeselected -= UpdatePreviewAction;
             SelectionEvents.OnRotated -= UpdatePreviewAction;
+
+            SelectionEvents.OnSelected -= UpdateSelectionAction;
+            SelectionEvents.OnDeselected -= UpdateSelectionAction;
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
             var selection = _hand.Selection;
 
-            var cellPosition = (Vector2Int) GetCellPosition(eventData);
+            var cellPosition = (Vector2Int)GetCellPosition(eventData);
 
             if (selection != null)
             {
@@ -61,7 +72,6 @@ namespace blocks
             {
                 HandlePickup(cellPosition);
             }
-
         }
 
         private void HandlePickup(Vector2Int cellPosition)
@@ -86,6 +96,7 @@ namespace blocks
         {
             CurrentMouseCellPosition = null;
             UpdatePreview();
+            UpdateSelection();
         }
 
         public void OnPointerMove(PointerEventData eventData)
@@ -96,6 +107,7 @@ namespace blocks
             {
                 CurrentMouseCellPosition = cellPosition;
                 UpdatePreview();
+                UpdateSelection();
             }
         }
 
@@ -113,12 +125,14 @@ namespace blocks
         private void OnSingleTileChanged(TileTypeSO tileType, Vector2Int position)
         {
             tilemap.SetTile(ToVec3Int(position), tileType.tile);
+            UpdateSelection();
         }
 
         private void OnTilesChanged()
         {
             tilemap.ClearAllTiles();
             foreach (var pair in _tileZone.GetTiles()) tilemap.SetTile(ToVec3Int(pair.Position), pair.Tile.tile);
+            UpdateSelection();
         }
 
         private Vector3Int GetCellPosition(PointerEventData eventData)
@@ -134,29 +148,56 @@ namespace blocks
             return position;
         }
 
+        private void UpdateSelection()
+        {
+            selectionTilemap.gameObject.SetActive(false);
+            var selected = _hand.Selection;
+
+            if (CurrentMouseCellPosition == null || selected != null)
+            {
+                return;
+            }
+
+            var position = CurrentMouseCellPosition.Value;
+            previewTilemap.gameObject.SetActive(true);
+            previewTilemap.ClearAllTiles();
+
+            var shape = _tileZone.GetShape(position);
+
+            if (shape == null)
+            {
+                return;
+            }
+
+            foreach (var pair in shape.GetTilesTranslated(position))
+                previewTilemap.SetTile(ToVec3Int(pair.Position), borderTile);
+        }
+
         private void UpdatePreview()
         {
             previewTilemap.gameObject.SetActive(false);
             var selected = _hand.Selection;
-            if (CurrentMouseCellPosition != null && selected != null)
+            if (CurrentMouseCellPosition == null || selected == null)
             {
-                previewTilemap.gameObject.SetActive(true);
-                previewTilemap.ClearAllTiles();
+                return;
+            }
+            
+            previewTilemap.gameObject.SetActive(true);
+            previewTilemap.ClearAllTiles();
 
-                var value = selected.Value;
-                var offset = CurrentMouseCellPosition.Value;
+            var value = selected.Value;
+            var offset = CurrentMouseCellPosition.Value;
 
-                switch (value)
-                {
-                    case TileTypeSO tile:
-                        PreviewTile(tile, offset);
-                        break;
-                    case Shape shape:
-                        PreviewShape(shape.GetTilesTranslatedAndRotated(offset, selected.Rotation));
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown type {value.GetType()} for previewing selection");
-                }
+            switch (value)
+            {
+                case TileTypeSO tile:
+                    PreviewTile(tile, offset);
+                    break;
+                case Shape shape:
+                    PreviewShape(shape.GetTilesTranslatedAndRotated(offset, selected.Rotation));
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown type {value.GetType()} for previewing selection");
             }
         }
 
